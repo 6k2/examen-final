@@ -11,7 +11,6 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 
-const STUDENT_ID = "A01282356";
 const COLLECTION_NAME = "items";
 
 function mapSnapshot(snapshot) {
@@ -46,17 +45,18 @@ export function listenToItems(callback, errorCallback) {
 }
 
 // Crear un nuevo item
-export async function createItem({ title, description = "" }) {
+export async function createItem({ title, description = "", studentId }) {
   const trimmedTitle = title.trim();
   if (!trimmedTitle) {
     throw new Error("El título es obligatorio.");
   }
+  const trimmedStudentId = (studentId || "").trim() || "STU-0000";
 
   const ref = collection(db, COLLECTION_NAME);
   const docRef = await addDoc(ref, {
     title: trimmedTitle,
     description: description || "",
-    studentId: STUDENT_ID,
+    studentId: trimmedStudentId,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
@@ -65,7 +65,7 @@ export async function createItem({ title, description = "" }) {
 }
 
 // Actualizar un item existente
-export async function updateItem(id, { title, description }) {
+export async function updateItem(id, { title, description, studentId }) {
   if (!id) throw new Error("Falta el ID del item.");
 
   const updatePayload = {};
@@ -78,6 +78,13 @@ export async function updateItem(id, { title, description }) {
   }
   if (typeof description === "string") {
     updatePayload.description = description;
+  }
+  if (typeof studentId === "string") {
+    const trimmedStudentId = studentId.trim();
+    if (!trimmedStudentId) {
+      throw new Error("El studentId no puede estar vacío.");
+    }
+    updatePayload.studentId = trimmedStudentId;
   }
 
   updatePayload.updatedAt = serverTimestamp();

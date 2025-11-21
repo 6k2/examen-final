@@ -21,12 +21,20 @@ export default function HomeScreen() {
   };
 
   const handleEdit = (item) => {
+    const createdAtMs =
+      item?.createdAt?.toMillis?.() ??
+      (item?.createdAt?.seconds
+        ? item.createdAt.seconds * 1000 + (item?.createdAt?.nanoseconds || 0) / 1e6
+        : "");
+
     router.push({
       pathname: "/form",
       params: {
         id: item.id,
         title: item.title,
         description: item.description || "",
+        createdAt: createdAtMs ? createdAtMs.toString() : "",
+        studentId: item.studentId || "",
       },
     });
   };
