@@ -14,9 +14,9 @@ import { createItem, updateItem } from "../services/itemsService";
 
 export default function ItemFormScreen() {
   const router = useRouter();
-  const params = useLocalSearchParams();
+  const { id, title: initialTitle, description: initialDescription } = useLocalSearchParams();
 
-  const isEditing = Boolean(params.id);
+  const isEditing = Boolean(id);
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -24,11 +24,10 @@ export default function ItemFormScreen() {
 
   useEffect(() => {
     if (isEditing) {
-      // params llegan como strings
-      setTitle((params.title || "").toString());
-      setDescription((params.description || "").toString());
+      setTitle(initialTitle?.toString() ?? "");
+      setDescription(initialDescription?.toString() ?? "");
     }
-  }, [isEditing, params]);
+  }, [isEditing, initialTitle, initialDescription]);
 
   const handleSave = async () => {
     const trimmedTitle = title.trim();
@@ -41,7 +40,7 @@ export default function ItemFormScreen() {
       setSaving(true);
 
       if (isEditing) {
-        await updateItem(params.id.toString(), {
+        await updateItem(id.toString(), {
           title: trimmedTitle,
           description,
         });
